@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "normalize.css": "^8.0.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6"
   },
@@ -17,17 +18,20 @@
     "eslint-loader": "^2.1.2",
     "eslint-plugin-react": "^7.16.0",
     "html-webpack-plugin": "^3.2.0",
+    "node-sass": "^4.13.1",
+    "sass-loader": "^8.0.2",
     "style-loader": "^0.23.1",
     "webpack": "^4.31.0",
     "webpack-cli": "^3.3.2",
-    "webpack-dev-server": "^3.4.1"
+    "webpack-dev-server": "^3.10.3"
   },
   "scripts": {
-    "dev": "webpack-dev-server --mode development --watch --no-inline",
-    "build": "node run sass && webpack -p",
+    "dev": "run-p watch start",
+    "watch": "webpack --watch",
+    "build": "npm run scss && webpack -p",
     "lint": "eslint src/",
     "scss": "node-sass -w src/scss -o src/css",
-    "start": "node server.js"
+    "start": "webpack-dev-server"
   },
   "eslintConfig": {
     "extends": "react-app"

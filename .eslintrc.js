@@ -6,16 +6,17 @@ module.exports = {
     node: true,
     jest: true
   },
-  extends: ['eslint:recommended', 'plugin:react/recommended'],
+  extends: ["eslint:recommended", "plugin:react/recommended"],
   globals: {
-    Atomics: 'readonly',
-    SharedArrayBuffer: 'readonly'
+    Atomics: "readonly",
+    SharedArrayBuffer: "readonly"
   },
   parserOptions: {
-    sourceType: 'module',
+    sourceType: "module",
     ecmaVersion: 2018
   },
   rules: {
-    'no-console': 'off'
+    "no-console": "off",
+    "no-unused-vars": "off"
   }
 };
