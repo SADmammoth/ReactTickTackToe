@@ -1,9 +1,25 @@
 import React from "react";
+import propTypes from "prop-types";
 
 class Square extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      value: null
+    };
+  }
+
   render() {
-    return <button className="square">{/* TODO */}</button>;
+    return (
+      <button className="square" onClick={() => this.setState({ value: "X" })}>
+        {this.state.value}
+      </button>
+    );
   }
 }
+
+Square.propTypes = {
+  value: propTypes.string
+};
 
 export default Square;
