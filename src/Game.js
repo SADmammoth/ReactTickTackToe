@@ -9,7 +9,8 @@ class Game extends React.Component {
       height: 3,
       xIsNext: true,
       gameEnd: false,
-      history: []
+      history: [],
+      currentStep: -1
     };
   }
 
@@ -97,12 +98,40 @@ class Game extends React.Component {
   };
 
   makeTurn = (squares, width, height, changePlayer = false) => {
+    let history = [...this.state.history];
+    console.log(this.state.currentStep, history.length - 1);
+    if (this.state.currentStep < history.length - 1) {
+      history = history.slice(0, this.state.currentStep + 1);
+    }
     this.setState({
       xIsNext: changePlayer || !this.state.xIsNext,
-      history: [...this.state.history, [...squares]],
-      gameEnd: this.checkWinner(squares, width, height)
+      history: [...history, [...squares]],
+      gameEnd: this.checkWinner(squares, width, height),
+      currentStep: this.state.currentStep + 1
     });
   };
+
+  jumpTo(i) {
+    this.setState({ currentStep: i, xIsNext: i % 2 === 0 });
+  }
+
+  logTurns() {
+    let btn = (move, desc) => (
+      <li>
+        <button onClick={() => this.jumpTo(move)}>{desc}</button>
+      </li>
+    );
+    if (this.state.currentStep < 0) {
+      return;
+    }
+    let moves = this.state.history.map((step, move) =>
+      move == 0 ? btn(0, "Go to start") : btn(move, "Go to move #" + move)
+    );
+    if (this.state.gameEnd) {
+      moves.push(btn(this.state.history.length - 1, "Game end"));
+    }
+    return moves;
+  }
 
   render() {
     const status = this.state.gameEnd
@@ -113,7 +142,7 @@ class Game extends React.Component {
       <div className="game">
         <div className="game-board">
           <Board
-            squares={this.state.history[this.state.history.length - 1]}
+            squares={this.state.history[this.state.currentStep]}
             xIsNext={this.state.xIsNext}
             gameEnd={this.state.gameEnd}
             makeTurn={this.makeTurn}
@@ -123,7 +152,7 @@ class Game extends React.Component {
         </div>
         <div className="game-info">
           <div>{status}</div>
-          <ol>{/* TODO */}</ol>
+          <ol>{this.logTurns()}</ol>
         </div>
       </div>
     );
