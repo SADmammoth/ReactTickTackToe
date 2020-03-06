@@ -10,7 +10,8 @@ class Game extends React.Component {
       xIsNext: true,
       gameEnd: false,
       history: [],
-      currentStep: -1
+      currentStep: -1,
+      wins: { X: 0, O: 0 }
     };
   }
 
@@ -32,11 +33,13 @@ class Game extends React.Component {
       xIsNext: JSON.parse(localStorage.getItem("xIsNext")),
       width: size.width,
       height: size.height,
-      gameEnd: this.checkWinner(history[currentStep], size.width, size.height)
+      gameEnd: this.checkWinner(history[currentStep], size.width, size.height),
+      wins: JSON.parse(localStorage.getItem("wins"))
     });
   }
 
   componentDidUpdate() {
+    localStorage.setItem("wins", JSON.stringify(this.state.wins));
     localStorage.setItem("history", JSON.stringify(this.state.history));
     localStorage.setItem("currentStep", JSON.stringify(this.state.currentStep));
     localStorage.setItem("xIsNext", JSON.stringify(this.state.xIsNext));
@@ -138,17 +141,20 @@ class Game extends React.Component {
     if (this.state.currentStep < history.length - 1) {
       history = history.slice(0, this.state.currentStep + 1);
     }
+    let gameEnd = this.checkWinner(squares, width, height);
+    let wins = Object.assign({}, this.state.wins);
+    if (gameEnd) wins[this.state.xIsNext ? "X" : "O"]++;
     this.setState({
       xIsNext: changePlayer || !this.state.xIsNext,
       history: [...history, [...squares]],
-      gameEnd: this.checkWinner(squares, width, height),
-      currentStep: this.state.currentStep + 1
+      gameEnd: gameEnd,
+      currentStep: this.state.currentStep + 1,
+      wins: wins
     });
   };
 
   jumpTo(i) {
     let gameEnd = this.state.gameEnd;
-    console.log(i, this.state.history.length - 1);
     if (this.state.gameEnd && i < this.state.history.length - 1) {
       gameEnd = false;
     }
@@ -229,6 +235,8 @@ class Game extends React.Component {
           />
         </div>
         <div className="game-info">
+          <div>X wins: {this.state.wins.X}</div>
+          <div>O wins: {this.state.wins.O}</div>
           <div>{status}</div>
           <ol>{this.logTurns()}</ol>
         </div>
