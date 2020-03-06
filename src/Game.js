@@ -5,13 +5,15 @@ class Game extends React.Component {
   constructor(state) {
     super(state);
     this.state = {
+      width: 4,
+      height: 3,
       xIsNext: true,
       gameEnd: false,
-      history: [Array(7).fill(null)]
+      history: []
     };
   }
 
-  checkWinner = (squares, height, width) => {
+  checkWinner = (squares, width, height) => {
     function checkY(squares) {
       let count = 0;
       for (let i = 0; i < width; i++) {
@@ -20,13 +22,12 @@ class Game extends React.Component {
             break;
           } else {
             count++;
+            if (count === height) {
+              return true;
+            }
           }
         }
-        if (count === height) {
-          return true;
-        } else {
-          count = 0;
-        }
+        count = 0;
       }
       return false;
     }
@@ -34,19 +35,18 @@ class Game extends React.Component {
     function checkX(squares) {
       let count = 0;
       let j = 0;
-      for (let i = 0; i < squares.length; i += width) {
-        for (let j = i; j < width; j++) {
-          if (!squares[i] || squares[i] !== squares[j]) {
+      for (let i = 0; i < squares.length - width; i += width) {
+        for (let j = 0; j < width; j++) {
+          if (!squares[i] || squares[i] !== squares[i + j]) {
             break;
           } else {
             count++;
+            if (count === width) {
+              return true;
+            }
           }
         }
-        if (count === width) {
-          return true;
-        } else {
-          count = 0;
-        }
+        count = 0;
       }
       return false;
     }
@@ -59,13 +59,12 @@ class Game extends React.Component {
             break;
           } else {
             count++;
+            if (count === Math.min(width, height)) {
+              return true;
+            }
           }
         }
-        if (count === Math.min(width, height)) {
-          return true;
-        } else {
-          count = 0;
-        }
+        count = 1;
       }
       return false;
     }
@@ -73,18 +72,18 @@ class Game extends React.Component {
     function checkDiagNeg(squares) {
       let count = 1;
       for (let i = width - 1; i >= 0; i--) {
-        for (let j = 1; i < squares.length; j++) {
+        for (let j = 1; j < Math.min(width, height); j++) {
           if (!squares[i] || squares[i] !== squares[i + width * j - j]) {
             break;
           } else {
             count++;
+
+            if (count === Math.min(width, height)) {
+              return true;
+            }
           }
         }
-        if (count === Math.min(width, height)) {
-          return true;
-        } else {
-          count = 0;
-        }
+        count = 1;
       }
       return false;
     }
@@ -97,16 +96,15 @@ class Game extends React.Component {
     );
   };
 
-  makeTurn = squares => {
+  makeTurn = (squares, width, height, changePlayer = false) => {
     this.setState({
-      xIsNext: !this.state.xIsNext,
+      xIsNext: changePlayer || !this.state.xIsNext,
       history: [...this.state.history, [...squares]],
-      gameEnd: this.checkWinner(squares, 3, 3)
+      gameEnd: this.checkWinner(squares, width, height)
     });
   };
 
   render() {
-    console.log(this.state.history);
     const status = this.state.gameEnd
       ? (this.state.xIsNext ? "O" : "X") + " won"
       : "Current player: " + (this.state.xIsNext ? "X" : "O");
@@ -119,6 +117,8 @@ class Game extends React.Component {
             xIsNext={this.state.xIsNext}
             gameEnd={this.state.gameEnd}
             makeTurn={this.makeTurn}
+            width={this.state.width}
+            height={this.state.height}
           />
         </div>
         <div className="game-info">

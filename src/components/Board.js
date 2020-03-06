@@ -15,28 +15,37 @@ class Board extends React.Component {
   handleClick = i => {
     const squares = [...this.props.squares];
     squares[i] = this.props.xIsNext ? "X" : "O";
-    console.log(squares);
-    this.props.makeTurn(squares);
+    this.props.makeTurn(squares, this.props.width, this.props.height);
   };
+
+  renderSquares() {
+    if (this.props.squares) {
+      return this.props.squares.map((el, i) => this.renderSquare(i));
+    }
+  }
+
+  componentDidMount() {
+    if (!this.props.squares) {
+      this.props.makeTurn(
+        Array(this.props.width * this.props.height).fill(null),
+        this.props.width,
+        this.props.height,
+        true
+      );
+      return;
+    }
+  }
 
   render() {
     return (
-      <div>
-        <div className="board-row">
-          {this.renderSquare(0)}
-          {this.renderSquare(1)}
-          {this.renderSquare(2)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(3)}
-          {this.renderSquare(4)}
-          {this.renderSquare(5)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(6)}
-          {this.renderSquare(7)}
-          {this.renderSquare(8)}
-        </div>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: `repeat(${this.props.width},1fr)`,
+          gridTemplateRows: `repeat(${this.props.height},1fr)`
+        }}
+      >
+        {this.renderSquares()}
       </div>
     );
   }
@@ -46,7 +55,9 @@ Board.propTypes = {
   squares: propTypes.arrayOf(propTypes.string),
   xIsNext: propTypes.bool,
   gameEnd: propTypes.bool,
-  makeTurn: propTypes.func
+  makeTurn: propTypes.func,
+  height: propTypes.number,
+  width: propTypes.number
 };
 
 export default Board;
