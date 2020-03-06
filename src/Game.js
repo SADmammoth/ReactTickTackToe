@@ -219,7 +219,9 @@ class Game extends React.Component {
     let wins = Object.assign({}, this.state.wins);
     if (this.state.gameEnd.result && i < this.state.history.length - 1) {
       gameEnd.result = false;
-      wins[this.state.xIsNext ? "O" : "X"]--;
+      if (i != 0) {
+        wins[this.state.xIsNext ? "O" : "X"]--;
+      }
     }
     gameEnd = this.checkWinner(
       this.state.history[i],
@@ -239,7 +241,7 @@ class Game extends React.Component {
   }
 
   logTurns() {
-    let btn = (move, desc) => (
+    let btn = (move, desc, reset) => (
       <li key={move}>
         <button
           className={
@@ -251,14 +253,20 @@ class Game extends React.Component {
         >
           {desc}
         </button>
-        <button onClick={() => this.resetTo(move)}>{"Reset"}</button>
+        {!reset || <button onClick={() => this.resetTo(move)}>{reset}</button>}
       </li>
     );
     if (this.state.currentStep < 0) {
       return;
     }
-    let moves = this.state.history.map((step, move) =>
-      move == 0 ? btn(0, "Go to start") : btn(move, "Go to move #" + move)
+    let moves = this.state.history.map((step, move, arr) =>
+      move == 0
+        ? btn(0, "Go to start", "New game")
+        : btn(
+            move,
+            "Go to move #" + move,
+            move == arr.length - 1 ? null : "Reset"
+          )
     );
     if (this.state.gameEnd.result) {
       moves.pop();
