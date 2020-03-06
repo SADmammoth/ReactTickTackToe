@@ -24,12 +24,15 @@ class Game extends React.Component {
         JSON.stringify({ width: this.state.width, height: this.state.height })
       )
     );
+    let currentStep = JSON.parse(localStorage.getItem("currentStep"));
+    let history = JSON.parse(localStorage.getItem("history"));
     this.setState({
-      history: JSON.parse(localStorage.getItem("history")),
-      currentStep: JSON.parse(localStorage.getItem("currentStep")),
+      history: history,
+      currentStep: currentStep,
       xIsNext: JSON.parse(localStorage.getItem("xIsNext")),
       width: size.width,
-      height: size.height
+      height: size.height,
+      gameEnd: this.checkWinner(history[currentStep], size.width, size.height)
     });
   }
 
@@ -179,7 +182,16 @@ class Game extends React.Component {
   logTurns() {
     let btn = (move, desc) => (
       <li key={move}>
-        <button onClick={() => this.jumpTo(move)}>{desc}</button>
+        <button
+          className={
+            this.state.currentStep === move
+              ? "button_history_current"
+              : "button_history"
+          }
+          onClick={() => this.jumpTo(move)}
+        >
+          {desc}
+        </button>
         <button onClick={() => this.resetTo(move)}>{"Reset"}</button>
       </li>
     );
@@ -213,6 +225,7 @@ class Game extends React.Component {
             makeTurn={this.makeTurn}
             width={this.state.width}
             height={this.state.height}
+            currentStep={this.state.currentStep}
           />
         </div>
         <div className="game-info">
