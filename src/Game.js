@@ -19,7 +19,8 @@ class Game extends React.Component {
   }
 
   componentDidMount() {
-    if (localStorage.getItem("history") == null) {
+    let history = JSON.parse(localStorage.getItem("history"));
+    if (history == null || history.length == 1) {
       return;
     }
     let size = JSON.parse(
@@ -29,7 +30,7 @@ class Game extends React.Component {
       )
     );
     let currentStep = JSON.parse(localStorage.getItem("currentStep"));
-    let history = JSON.parse(localStorage.getItem("history"));
+
     this.setState({
       history: history,
       currentStep: currentStep,
@@ -59,15 +60,17 @@ class Game extends React.Component {
 
     function checkX(squares) {
       let count = 0;
-      let j = 0;
-      for (let i = 0; i < squares.length - width; i += width) {
+      for (let i = 0; i < squares.length; i += width) {
+        console.log("ds");
         for (let j = 0; j < width; j++) {
+          console.log(squares[i], i + j);
           if (!squares[i] || squares[i] !== squares[i + j]) {
             wonIndexes = [];
             break;
           } else {
             wonIndexes.push(i + j);
             count++;
+            console.log(count);
             if (count === width) {
               wonDirection = 0;
               return true;
