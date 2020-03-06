@@ -7,7 +7,11 @@ class Board extends React.Component {
     return (
       <Square
         value={this.props.squares[i]}
-        onClick={this.props.gameEnd ? () => {} : () => this.handleClick(i)}
+        onClick={
+          this.props.gameEnd || this.props.squares[i]
+            ? () => {}
+            : () => this.handleClick(i)
+        }
       />
     );
   }

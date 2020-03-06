@@ -118,11 +118,14 @@ class Game extends React.Component {
       return false;
     }
 
+    let checkDraw = squares => squares.filter(el => !el).length == 0;
+
     return (
       checkX(squares) ||
       checkY(squares) ||
       checkDiagPos(squares) ||
-      checkDiagNeg(squares)
+      checkDiagNeg(squares) ||
+      (checkDraw(squares) ? "Draw" : false)
     );
   };
 
@@ -141,15 +144,35 @@ class Game extends React.Component {
   };
 
   jumpTo(i) {
-    this.setState({ currentStep: i, xIsNext: i % 2 === 0 });
+    let gameEnd = this.state.gameEnd;
+    console.log(i, this.state.history.length - 1);
+    if (this.state.gameEnd && i < this.state.history.length - 1) {
+      gameEnd = false;
+    }
+    gameEnd = this.checkWinner(
+      this.state.history[i],
+      this.state.width,
+      this.state.height
+    );
+    this.setState({ currentStep: i, xIsNext: i % 2 === 0, gameEnd: gameEnd });
   }
 
   resetTo(i) {
     let history = [...this.state.history];
+    let gameEnd = this.state.gameEnd;
+    if (this.state.gameEnd && i < this.state.history.length - 1) {
+      gameEnd = false;
+    }
+    gameEnd = this.checkWinner(
+      this.state.history[i],
+      this.state.width,
+      this.state.height
+    );
     this.setState({
       currentStep: i,
       xIsNext: i % 2 === 0,
-      history: history.slice(0, i + 1)
+      history: history.slice(0, i + 1),
+      gameEnd: gameEnd
     });
   }
 
@@ -167,16 +190,19 @@ class Game extends React.Component {
       move == 0 ? btn(0, "Go to start") : btn(move, "Go to move #" + move)
     );
     if (this.state.gameEnd) {
+      moves.pop();
       moves.push(btn(this.state.history.length - 1, "Game end"));
     }
     return moves;
   }
 
   render() {
-    const status = this.state.gameEnd
-      ? (this.state.xIsNext ? "O" : "X") + " won"
-      : "Current player: " + (this.state.xIsNext ? "X" : "O");
-
+    const status =
+      this.state.gameEnd !== "Draw"
+        ? this.state.gameEnd
+          ? (this.state.xIsNext ? "O" : "X") + " won"
+          : "Current player: " + (this.state.xIsNext ? "X" : "O")
+        : "Draw";
     return (
       <div className="game">
         <div className="game-board">
