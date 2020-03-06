@@ -1,17 +1,20 @@
 import React from "react";
 import Board from "./components/Board";
+import BoardCreator from "./components/BoardCreator";
+import shortid from "shortid";
 
 class Game extends React.Component {
   constructor(state) {
     super(state);
     this.state = {
-      width: 4,
-      height: 3,
+      width: 0,
+      height: 0,
       xIsNext: true,
       gameEnd: false,
       history: [],
       currentStep: -1,
-      wins: { X: 0, O: 0 }
+      wins: { X: 0, O: 0 },
+      init: true
     };
   }
 
@@ -34,7 +37,8 @@ class Game extends React.Component {
       width: size.width,
       height: size.height,
       gameEnd: this.checkWinner(history[currentStep], size.width, size.height),
-      wins: JSON.parse(localStorage.getItem("wins"))
+      wins: JSON.parse(localStorage.getItem("wins")),
+      init: false
     });
   }
 
@@ -50,15 +54,22 @@ class Game extends React.Component {
   }
 
   checkWinner = (squares, width, height) => {
-    function checkY(squares) {
+    let wonIndexes = [];
+    let wonDirection = "";
+
+    function checkX(squares) {
       let count = 0;
-      for (let i = 0; i < width; i++) {
-        for (let j = 0; j < height; j++) {
-          if (!squares[i] || squares[i] !== squares[i + width * j]) {
+      let j = 0;
+      for (let i = 0; i < squares.length - width; i += width) {
+        for (let j = 0; j < width; j++) {
+          if (!squares[i] || squares[i] !== squares[i + j]) {
+            wonIndexes = [];
             break;
           } else {
+            wonIndexes.push(i + j);
             count++;
-            if (count === height) {
+            if (count === width) {
+              wonDirection = 0;
               return true;
             }
           }
@@ -68,16 +79,18 @@ class Game extends React.Component {
       return false;
     }
 
-    function checkX(squares) {
+    function checkY(squares) {
       let count = 0;
-      let j = 0;
-      for (let i = 0; i < squares.length - width; i += width) {
-        for (let j = 0; j < width; j++) {
-          if (!squares[i] || squares[i] !== squares[i + j]) {
+      for (let i = 0; i < width; i++) {
+        for (let j = 0; j < height; j++) {
+          if (!squares[i] || squares[i] !== squares[i + width * j]) {
+            wonIndexes = [];
             break;
           } else {
+            wonIndexes.push(i + width * j);
             count++;
-            if (count === width) {
+            if (count === height) {
+              wonDirection = 1;
               return true;
             }
           }
@@ -92,10 +105,14 @@ class Game extends React.Component {
       for (let i = 0; i < width; i++) {
         for (let j = 1; i < squares.length; j++) {
           if (!squares[i] || squares[i] !== squares[i + width * j + j]) {
+            wonIndexes = [];
             break;
           } else {
+            wonIndexes.push(i + width * j + j);
             count++;
             if (count === Math.min(width, height)) {
+              wonIndexes.push(i);
+              wonDirection = 2;
               return true;
             }
           }
@@ -110,11 +127,15 @@ class Game extends React.Component {
       for (let i = width - 1; i >= 0; i--) {
         for (let j = 1; j < Math.min(width, height); j++) {
           if (!squares[i] || squares[i] !== squares[i + width * j - j]) {
+            wonIndexes = [];
             break;
           } else {
+            wonIndexes.push(i + width * j - j);
             count++;
 
             if (count === Math.min(width, height)) {
+              wonIndexes.push(i);
+              wonDirection = 3;
               return true;
             }
           }
@@ -126,16 +147,28 @@ class Game extends React.Component {
 
     let checkDraw = squares => squares.filter(el => !el).length == 0;
 
-    return (
-      checkX(squares) ||
-      checkY(squares) ||
-      checkDiagPos(squares) ||
-      checkDiagNeg(squares) ||
-      (checkDraw(squares) ? "Draw" : false)
-    );
+    return {
+      result:
+        checkX(squares) ||
+        checkY(squares) ||
+        checkDiagPos(squares) ||
+        checkDiagNeg(squares) ||
+        (checkDraw(squares) ? "Draw" : false),
+      wonIndexes: wonIndexes,
+      wonDirection: wonDirection
+    };
   };
 
-  makeTurn = (squares, width, height, changePlayer = false) => {
+  makeTurn = (squares, width, height) => {
+    console.log(squares);
+    if (this.state.currentStep < 0) {
+      this.setState({
+        xIsNext: true,
+        history: [squares],
+        currentStep: 0
+      });
+      return;
+    }
     let history = [...this.state.history];
 
     if (this.state.currentStep < history.length - 1) {
@@ -143,9 +176,10 @@ class Game extends React.Component {
     }
     let gameEnd = this.checkWinner(squares, width, height);
     let wins = Object.assign({}, this.state.wins);
-    if (gameEnd) wins[this.state.xIsNext ? "X" : "O"]++;
+
+    if (gameEnd.result) wins[this.state.xIsNext ? "X" : "O"]++;
     this.setState({
-      xIsNext: changePlayer || !this.state.xIsNext,
+      xIsNext: !this.state.xIsNext,
       history: [...history, [...squares]],
       gameEnd: gameEnd,
       currentStep: this.state.currentStep + 1,
@@ -154,34 +188,50 @@ class Game extends React.Component {
   };
 
   jumpTo(i) {
-    let gameEnd = this.state.gameEnd;
-    if (this.state.gameEnd && i < this.state.history.length - 1) {
-      gameEnd = false;
+    let gameEnd = Object.assign({}, this.state.gameEnd);
+    let wins = Object.assign({}, this.state.wins);
+    if (this.state.gameEnd.result && i < this.state.history.length - 1) {
+      gameEnd.result = false;
+      wins[this.state.xIsNext ? "O" : "X"]--;
     }
     gameEnd = this.checkWinner(
       this.state.history[i],
       this.state.width,
       this.state.height
     );
-    this.setState({ currentStep: i, xIsNext: i % 2 === 0, gameEnd: gameEnd });
+    if (gameEnd.result) {
+      wins[this.state.xIsNext ? "X" : "O"]++;
+    }
+    this.setState({
+      currentStep: i,
+      xIsNext: i % 2 === 0,
+      gameEnd: gameEnd,
+      wins: wins
+    });
   }
 
   resetTo(i) {
     let history = [...this.state.history];
-    let gameEnd = this.state.gameEnd;
-    if (this.state.gameEnd && i < this.state.history.length - 1) {
-      gameEnd = false;
+    let gameEnd = Object.assign({}, this.state.gameEnd);
+    let wins = Object.assign({}, this.state.wins);
+    if (this.state.gameEnd.result && i < this.state.history.length - 1) {
+      gameEnd.result = false;
+      wins[this.state.xIsNext ? "O" : "X"]--;
     }
     gameEnd = this.checkWinner(
       this.state.history[i],
       this.state.width,
       this.state.height
     );
+    if (gameEnd.result) {
+      wins[this.state.xIsNext ? "X" : "O"]++;
+    }
     this.setState({
       currentStep: i,
       xIsNext: i % 2 === 0,
       history: history.slice(0, i + 1),
-      gameEnd: gameEnd
+      gameEnd: gameEnd,
+      wins: wins
     });
   }
 
@@ -207,7 +257,7 @@ class Game extends React.Component {
     let moves = this.state.history.map((step, move) =>
       move == 0 ? btn(0, "Go to start") : btn(move, "Go to move #" + move)
     );
-    if (this.state.gameEnd) {
+    if (this.state.gameEnd.result) {
       moves.pop();
       moves.push(btn(this.state.history.length - 1, "Game end"));
     }
@@ -216,30 +266,61 @@ class Game extends React.Component {
 
   render() {
     const status =
-      this.state.gameEnd !== "Draw"
-        ? this.state.gameEnd
+      this.state.gameEnd.result !== "Draw"
+        ? this.state.gameEnd.result
           ? (this.state.xIsNext ? "O" : "X") + " won"
           : "Current player: " + (this.state.xIsNext ? "X" : "O")
         : "Draw";
     return (
       <div className="game">
-        <div className="game-board">
-          <Board
-            squares={this.state.history[this.state.currentStep]}
-            xIsNext={this.state.xIsNext}
-            gameEnd={this.state.gameEnd}
-            makeTurn={this.makeTurn}
-            width={this.state.width}
-            height={this.state.height}
-            currentStep={this.state.currentStep}
+        {this.state.init ? (
+          <BoardCreator
+            inputs={[
+              {
+                description: "Width",
+                type: "number",
+                name: "width",
+                attributes: { min: 3, max: 10 }
+              },
+              {
+                description: "Height",
+                type: "number",
+                name: "height",
+                attributes: { min: 3, max: 10 }
+              }
+            ]}
+            id={shortid.generate()}
+            open={true}
+            onSubmit={data =>
+              this.setState({
+                width: parseInt(data.width),
+                height: parseInt(data.height),
+                init: false
+              })
+            }
           />
-        </div>
-        <div className="game-info">
-          <div>X wins: {this.state.wins.X}</div>
-          <div>O wins: {this.state.wins.O}</div>
-          <div>{status}</div>
-          <ol>{this.logTurns()}</ol>
-        </div>
+        ) : (
+          <>
+            <div className="game-board">
+              <Board
+                squares={this.state.history[this.state.currentStep]}
+                xIsNext={this.state.xIsNext}
+                gameEnd={this.state.gameEnd}
+                makeTurn={this.makeTurn}
+                width={this.state.width}
+                height={this.state.height}
+                currentStep={this.state.currentStep}
+              />
+            </div>
+
+            <div className="game-info">
+              <div>X wins: {this.state.wins.X}</div>
+              <div>O wins: {this.state.wins.O}</div>
+              <div>{status}</div>
+              <ol>{this.logTurns()}</ol>
+            </div>
+          </>
+        )}
       </div>
     );
   }

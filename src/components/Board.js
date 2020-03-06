@@ -7,8 +7,13 @@ class Board extends React.Component {
     return (
       <Square
         value={this.props.squares[i]}
+        crossDirection={
+          !this.props.gameEnd.result ||
+          !this.props.gameEnd.wonIndexes.includes(i) ||
+          this.props.gameEnd.wonDirection
+        }
         onClick={
-          this.props.gameEnd || this.props.squares[i]
+          this.props.gameEnd.result || this.props.squares[i]
             ? () => {}
             : () => this.handleClick(i)
         }
@@ -29,7 +34,9 @@ class Board extends React.Component {
   }
 
   componentDidMount() {
-    if (!this.props.squares) {
+    console.log(this.props.squares);
+    if (!this.props.squares || !this.props.squares.length) {
+      console.log(this.props.width * this.props.height);
       this.props.makeTurn(
         Array(this.props.width * this.props.height).fill(null),
         this.props.width,
@@ -58,7 +65,11 @@ class Board extends React.Component {
 Board.propTypes = {
   squares: propTypes.arrayOf(propTypes.string),
   xIsNext: propTypes.bool,
-  gameEnd: propTypes.bool,
+  gameEnd: propTypes.shape({
+    result: propTypes.oneOf(propTypes.bool, propTypes.string),
+    wonIndexes: propTypes.arrayOf(propTypes.number),
+    wonDirection: propTypes.number
+  }),
   makeTurn: propTypes.func,
   height: propTypes.number,
   width: propTypes.number
