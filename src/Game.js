@@ -14,6 +14,35 @@ class Game extends React.Component {
     };
   }
 
+  componentDidMount() {
+    if (localStorage.getItem("history") == null) {
+      return;
+    }
+    let size = JSON.parse(
+      localStorage.getItem(
+        "size",
+        JSON.stringify({ width: this.state.width, height: this.state.height })
+      )
+    );
+    this.setState({
+      history: JSON.parse(localStorage.getItem("history")),
+      currentStep: JSON.parse(localStorage.getItem("currentStep")),
+      xIsNext: JSON.parse(localStorage.getItem("xIsNext")),
+      width: size.width,
+      height: size.height
+    });
+  }
+
+  componentDidUpdate() {
+    localStorage.setItem("history", JSON.stringify(this.state.history));
+    localStorage.setItem("currentStep", JSON.stringify(this.state.currentStep));
+    localStorage.setItem("xIsNext", JSON.stringify(this.state.xIsNext));
+    localStorage.setItem(
+      "size",
+      JSON.stringify({ width: this.state.width, height: this.state.height })
+    );
+  }
+
   checkWinner = (squares, width, height) => {
     function checkY(squares) {
       let count = 0;
@@ -99,7 +128,7 @@ class Game extends React.Component {
 
   makeTurn = (squares, width, height, changePlayer = false) => {
     let history = [...this.state.history];
-    console.log(this.state.currentStep, history.length - 1);
+
     if (this.state.currentStep < history.length - 1) {
       history = history.slice(0, this.state.currentStep + 1);
     }
@@ -115,10 +144,20 @@ class Game extends React.Component {
     this.setState({ currentStep: i, xIsNext: i % 2 === 0 });
   }
 
+  resetTo(i) {
+    let history = [...this.state.history];
+    this.setState({
+      currentStep: i,
+      xIsNext: i % 2 === 0,
+      history: history.slice(0, i + 1)
+    });
+  }
+
   logTurns() {
     let btn = (move, desc) => (
-      <li>
+      <li key={move}>
         <button onClick={() => this.jumpTo(move)}>{desc}</button>
+        <button onClick={() => this.resetTo(move)}>{"Reset"}</button>
       </li>
     );
     if (this.state.currentStep < 0) {
