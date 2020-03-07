@@ -33,20 +33,6 @@ class Board extends React.Component {
     }
   }
 
-  componentDidMount() {
-    console.log(this.props.squares);
-    if (!this.props.squares || !this.props.squares.length) {
-      console.log(this.props.width * this.props.height);
-      this.props.makeTurn(
-        Array(this.props.width * this.props.height).fill(null),
-        this.props.width,
-        this.props.height,
-        true
-      );
-      return;
-    }
-  }
-
   render() {
     return (
       <div

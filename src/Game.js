@@ -12,7 +12,7 @@ class Game extends React.Component {
       xIsNext: true,
       gameEnd: false,
       history: [],
-      currentStep: -1,
+      currentStep: 0,
       wins: { X: 0, O: 0 },
       init: true
     };
@@ -163,15 +163,6 @@ class Game extends React.Component {
   };
 
   makeTurn = (squares, width, height) => {
-    console.log(squares);
-    if (this.state.currentStep < 0) {
-      this.setState({
-        xIsNext: true,
-        history: [squares],
-        currentStep: 0
-      });
-      return;
-    }
     let history = [...this.state.history];
 
     if (this.state.currentStep < history.length - 1) {
@@ -306,6 +297,9 @@ class Game extends React.Component {
               this.setState({
                 width: parseInt(data.width),
                 height: parseInt(data.height),
+                history: [
+                  Array(parseInt(data.width) * parseInt(data.height)).fill(null)
+                ],
                 init: false
               })
             }
