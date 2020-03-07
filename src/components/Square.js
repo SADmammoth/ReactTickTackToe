@@ -2,6 +2,7 @@ import React from "react";
 import propTypes from "prop-types";
 
 class Square extends React.Component {
+  //* CSS classes to use for won sequences
   directions = [
     "strikethrough-horizontal",
     "strikethrough-vertical",

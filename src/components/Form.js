@@ -98,6 +98,7 @@ class Form extends React.Component {
     if (Object.keys(this.state.values).length === 0) {
       return null;
     }
+
     return this.props.inputs.map((el, i) => {
       let { type, name, description, required, label, attributes } = el;
       return Form.createInput(
@@ -121,6 +122,7 @@ class Form extends React.Component {
     );
     return values;
   }
+
   render() {
     return (
       <>

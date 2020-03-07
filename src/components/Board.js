@@ -21,17 +21,17 @@ class Board extends React.Component {
     );
   }
 
-  handleClick = i => {
-    const squares = [...this.props.squares];
-    squares[i] = this.props.xIsNext ? "X" : "O";
-    this.props.makeTurn(squares, this.props.width, this.props.height);
-  };
-
   renderSquares() {
     if (this.props.squares) {
       return this.props.squares.map((el, i) => this.renderSquare(i));
     }
   }
+
+  handleClick = i => {
+    const squares = [...this.props.squares];
+    squares[i] = this.props.xIsCurrent ? "X" : "O";
+    this.props.makeTurn(squares, this.props.width, this.props.height);
+  };
 
   render() {
     return (
@@ -50,7 +50,7 @@ class Board extends React.Component {
 
 Board.propTypes = {
   squares: propTypes.arrayOf(propTypes.string),
-  xIsNext: propTypes.bool,
+  xIsCurrent: propTypes.bool,
   gameEnd: propTypes.shape({
     result: propTypes.oneOf(propTypes.bool, propTypes.string),
     wonIndexes: propTypes.arrayOf(propTypes.number),

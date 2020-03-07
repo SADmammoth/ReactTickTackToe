@@ -9,20 +9,30 @@ class Game extends React.Component {
     this.state = {
       width: 0,
       height: 0,
-      xIsNext: true,
-      gameEnd: false,
+      xIsCurrent: true,
+      gameEnd: {
+        result: false
+      } /* { result: true|false|"Draw", 
+        wonIndexes: [<indexes of won sequence>], 
+        wonDirection: 0..4} */,
       history: [],
-      currentStep: 0,
+      currentStep: 0, // Index of element in history, represents current board state
       wins: { X: 0, O: 0 },
-      init: true
+      init: true //Should show board creation modal or not
     };
   }
 
   componentDidMount() {
     let history = JSON.parse(localStorage.getItem("history"));
+
+    //*If history is empty then load only wins count
     if (history == null || history.length == 1) {
+      this.setState({
+        wins: JSON.parse(localStorage.getItem("wins"))
+      });
       return;
     }
+
     let size = JSON.parse(
       localStorage.getItem(
         "size",
@@ -34,7 +44,7 @@ class Game extends React.Component {
     this.setState({
       history: history,
       currentStep: currentStep,
-      xIsNext: JSON.parse(localStorage.getItem("xIsNext")),
+      xIsCurrent: JSON.parse(localStorage.getItem("xIsCurrent")),
       width: size.width,
       height: size.height,
       gameEnd: this.checkWinner(history[currentStep], size.width, size.height),
@@ -47,7 +57,7 @@ class Game extends React.Component {
     localStorage.setItem("wins", JSON.stringify(this.state.wins));
     localStorage.setItem("history", JSON.stringify(this.state.history));
     localStorage.setItem("currentStep", JSON.stringify(this.state.currentStep));
-    localStorage.setItem("xIsNext", JSON.stringify(this.state.xIsNext));
+    localStorage.setItem("xIsCurrent", JSON.stringify(this.state.xIsCurrent));
     localStorage.setItem(
       "size",
       JSON.stringify({ width: this.state.width, height: this.state.height })
@@ -58,19 +68,17 @@ class Game extends React.Component {
     let wonIndexes = [];
     let wonDirection = "";
 
+    //*Checks for won horizontal sequences
     function checkX(squares) {
       let count = 0;
       for (let i = 0; i < squares.length; i += width) {
-        console.log("ds");
         for (let j = 0; j < width; j++) {
-          console.log(squares[i], i + j);
           if (!squares[i] || squares[i] !== squares[i + j]) {
             wonIndexes = [];
             break;
           } else {
             wonIndexes.push(i + j);
             count++;
-            console.log(count);
             if (count === width) {
               wonDirection = 0;
               return true;
@@ -82,6 +90,7 @@ class Game extends React.Component {
       return false;
     }
 
+    //*Checks for won vertical sequences
     function checkY(squares) {
       let count = 0;
       for (let i = 0; i < width; i++) {
@@ -103,6 +112,12 @@ class Game extends React.Component {
       return false;
     }
 
+    /*
+     * Checks for won sequences like:
+     *    +--
+     *    -+-
+     *    --+
+     */
     function checkDiagPos(squares) {
       let count = 1;
       for (let i = 0; i < width; i++) {
@@ -125,6 +140,12 @@ class Game extends React.Component {
       return false;
     }
 
+    /*
+     * Checks for won sequences like:
+     *    --+
+     *    -+-
+     *    +--
+     */
     function checkDiagNeg(squares) {
       let count = 1;
       for (let i = width - 1; i >= 0; i--) {
@@ -148,6 +169,7 @@ class Game extends React.Component {
       return false;
     }
 
+    //*If no empty squares on board and no won sequences then draw
     let checkDraw = squares => squares.filter(el => !el).length == 0;
 
     return {
@@ -165,15 +187,17 @@ class Game extends React.Component {
   makeTurn = (squares, width, height) => {
     let history = [...this.state.history];
 
+    //*Clean history after current history step on turn
     if (this.state.currentStep < history.length - 1) {
       history = history.slice(0, this.state.currentStep + 1);
     }
+
     let gameEnd = this.checkWinner(squares, width, height);
     let wins = Object.assign({}, this.state.wins);
+    if (gameEnd.result) wins[this.state.xIsCurrent ? "X" : "O"]++;
 
-    if (gameEnd.result) wins[this.state.xIsNext ? "X" : "O"]++;
     this.setState({
-      xIsNext: !this.state.xIsNext,
+      xIsCurrent: !this.state.xIsCurrent,
       history: [...history, [...squares]],
       gameEnd: gameEnd,
       currentStep: this.state.currentStep + 1,
@@ -184,21 +208,25 @@ class Game extends React.Component {
   jumpTo(i) {
     let gameEnd = Object.assign({}, this.state.gameEnd);
     let wins = Object.assign({}, this.state.wins);
+
+    //*If current history step is before win, then is no win
     if (this.state.gameEnd.result && i < this.state.history.length - 1) {
       gameEnd.result = false;
-      wins[this.state.xIsNext ? "O" : "X"]--;
+      wins[this.state.xIsCurrent ? "O" : "X"]--;
+    } else {
+      gameEnd = this.checkWinner(
+        this.state.history[i],
+        this.state.width,
+        this.state.height
+      );
+      if (gameEnd.result) {
+        wins[this.state.xIsCurrent ? "X" : "O"]++;
+      }
     }
-    gameEnd = this.checkWinner(
-      this.state.history[i],
-      this.state.width,
-      this.state.height
-    );
-    if (gameEnd.result) {
-      wins[this.state.xIsNext ? "X" : "O"]++;
-    }
+
     this.setState({
       currentStep: i,
-      xIsNext: i % 2 === 0,
+      xIsCurrent: i % 2 === 0,
       gameEnd: gameEnd,
       wins: wins
     });
@@ -208,23 +236,27 @@ class Game extends React.Component {
     let history = [...this.state.history];
     let gameEnd = Object.assign({}, this.state.gameEnd);
     let wins = Object.assign({}, this.state.wins);
+
+    //*If current history step is before win, then is no win
     if (this.state.gameEnd.result && i < this.state.history.length - 1) {
       gameEnd.result = false;
       if (i != 0) {
-        wins[this.state.xIsNext ? "O" : "X"]--;
+        wins[this.state.xIsCurrent ? "O" : "X"]--;
+      }
+    } else {
+      gameEnd = this.checkWinner(
+        this.state.history[i],
+        this.state.width,
+        this.state.height
+      );
+      if (gameEnd.result) {
+        wins[this.state.xIsCurrent ? "X" : "O"]++;
       }
     }
-    gameEnd = this.checkWinner(
-      this.state.history[i],
-      this.state.width,
-      this.state.height
-    );
-    if (gameEnd.result) {
-      wins[this.state.xIsNext ? "X" : "O"]++;
-    }
+
     this.setState({
       currentStep: i,
-      xIsNext: i % 2 === 0,
+      xIsCurrent: i % 2 === 0,
       history: history.slice(0, i + 1),
       gameEnd: gameEnd,
       wins: wins
@@ -232,6 +264,7 @@ class Game extends React.Component {
   }
 
   logTurns() {
+    //* Mini-component for history button
     let btn = (move, desc, reset) => (
       <li key={move}>
         <button
@@ -247,35 +280,34 @@ class Game extends React.Component {
         {!reset || <button onClick={() => this.resetTo(move)}>{reset}</button>}
       </li>
     );
-    if (this.state.currentStep < 0) {
-      return;
-    }
-    let moves = this.state.history.map((step, move, arr) =>
-      move == 0
-        ? btn(0, "Go to start", "New game")
-        : btn(
-            move,
-            "Go to move #" + move,
-            move == arr.length - 1 ? null : "Reset"
-          )
-    );
-    if (this.state.gameEnd.result) {
-      moves.pop();
-      moves.push(btn(this.state.history.length - 1, "Game end"));
-    }
+
+    let moves = this.state.history.map((step, move, arr) => {
+      if (move == 0) {
+        return btn(0, "Go to start", "New game");
+      } else if (arr.length - 1 == move && this.state.gameEnd.result) {
+        return btn(move, "Game end");
+      } else {
+        return btn(move, "Go to move #" + move, "Reset");
+      }
+    });
+
     return moves;
   }
 
   render() {
-    const status =
-      this.state.gameEnd.result !== "Draw"
-        ? this.state.gameEnd.result
-          ? (this.state.xIsNext ? "O" : "X") + " won"
-          : "Current player: " + (this.state.xIsNext ? "X" : "O")
-        : "Draw";
+    let status = "";
+    if (this.state.gameEnd.result == "Draw") {
+      status = "Draw";
+    } else if (this.state.gameEnd.result) {
+      status = (this.state.xIsCurrent ? "O" : "X") + " won";
+    } else {
+      status = "Current player: " + (this.state.xIsCurrent ? "X" : "O");
+    }
+
     return (
       <div className="game">
-        {this.state.init ? (
+        {/*IF*/
+        this.state.init ? (
           <BoardCreator
             inputs={[
               {
@@ -305,11 +337,11 @@ class Game extends React.Component {
             }
           />
         ) : (
-          <>
+          /*ELSE*/ <>
             <div className="game-board">
               <Board
                 squares={this.state.history[this.state.currentStep]}
-                xIsNext={this.state.xIsNext}
+                xIsCurrent={this.state.xIsCurrent}
                 gameEnd={this.state.gameEnd}
                 makeTurn={this.makeTurn}
                 width={this.state.width}

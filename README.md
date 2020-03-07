@@ -7,10 +7,10 @@ Additional features:
 * Custom board sizes
 * History save
 * Track wins count
-* Improved history navigation inerface
+* Improved history navigation interface
 * Minor styles: strike through won sequence
 
-Languages, technologies and libruaries:
+Languages, technologies and libraries:
 * React
 * webpack
 * react-bootstrap
