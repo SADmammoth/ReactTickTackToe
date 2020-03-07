@@ -1,6 +1,7 @@
 # React Tick-tack-toe
 
-Deployed: [Heroku][https://react-ticktacktoe.herokuapp.com/]
+Deployed: [Heroku](https://react-ticktacktoe.herokuapp.com/)
+
 Based on React tutorial: [reactjs.org/tutorial](https://reactjs.org/tutorial/tutorial.html)
 
 Additional features:
