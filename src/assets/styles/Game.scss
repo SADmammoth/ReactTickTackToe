@@ -1,0 +1,144 @@
+$square_bg: teal;
+$square_color: white;
+$common_text: black;
+
+body {
+  font: 20px "Century Gothic", Futura, sans-serif;
+  margin: 20px;
+}
+
+ol,
+ul {
+  padding-left: 30px;
+}
+
+.status {
+  margin: 20px 5px;
+  font-weight: bold;
+  font-size: 24px;
+  color: $square_bg;
+}
+
+.square {
+  font-family: "Fredoka One";
+  background: $square_bg;
+  border: 1px solid $square_color;
+  color: $square_color;
+  float: left;
+  font-size: 40px;
+  line-height: 34px;
+  height: 70px;
+  width: 70px;
+  margin-right: -1px;
+  margin-top: -1px;
+  padding: 0;
+  text-align: center;
+}
+
+.square:focus {
+  outline: none;
+}
+
+.kbd-navigation .square:focus {
+  background: #ddd;
+}
+
+.game {
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 90vh;
+}
+
+.game-board {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.game-info {
+  margin-left: 20px;
+  margin-left: 5vw;
+}
+
+.button_history {
+  outline: none;
+  color: $common_text;
+  background: $square_color;
+  border: 3px solid $common_text;
+  font-weight: bold;
+  margin: 2px;
+
+  &_current {
+    outline: none;
+    background: $square_color;
+    color: $square_bg;
+    border: 3px solid $square_bg;
+    font-weight: bold;
+    margin: 2px;
+  }
+}
+
+.button_reset {
+  background: $square_color;
+  border: none;
+  margin-left: 5px;
+  font-size: 80%;
+}
+
+@each $direction,
+  $angle
+    in (
+      "horizontal": 0deg,
+      "vertical": 90deg,
+      "diag-positive": 45deg,
+      "diag-negative": -45deg
+    )
+{
+  .strikethrough {
+    &-#{$direction} {
+      background-color: $square_bg;
+
+      background-image: repeating-linear-gradient(
+        #{$angle},
+        $square_bg 0%,
+        $square_bg 47%,
+        $square_color 48%,
+        $square_color 50%,
+        $square_color 52%,
+        $square_bg 53%,
+        $square_bg 100%
+      );
+    }
+  }
+}
+
+@each $X in ("left", "right") {
+  @each $Y in ("top", "bottom") {
+    .rounded-#{$Y}-#{$X} {
+      border-#{$Y}-#{$X}-radius: 20px;
+    }
+  }
+}
+
+.win-log {
+  color: $common_text;
+  margin-bottom: 10px;
+
+  * {
+    float: left;
+    margin: 0 5px;
+  }
+  & + * {
+    clear: both;
+  }
+}
+
+.turns-log {
+  max-height: 80vh;
+  overflow-y: auto;
+  border: 2px solid $square_bg;
+  width: 25vw;
+  padding-left: 3vw;
+}

@@ -8,7 +8,10 @@ import "jquery";
 import "popper.js";
 import "bootstrap/js/dist/modal";
 import "bootstrap/scss/bootstrap.scss";
-import "./scss/Game.scss";
+
+import "./assets/fonts/FredokaOne-Regular.ttf";
+import "./assets/styles/fonts.css";
+import "./assets/styles/Game.scss";
 
 ReactDOM.render(<Game />, document.getElementById("root"));
 

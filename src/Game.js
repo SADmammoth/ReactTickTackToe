@@ -277,7 +277,11 @@ class Game extends React.Component {
         >
           {desc}
         </button>
-        {!reset || <button onClick={() => this.resetTo(move)}>{reset}</button>}
+        {!reset || (
+          <button className="button_reset" onClick={() => this.resetTo(move)}>
+            {reset}
+          </button>
+        )}
       </li>
     );
 
@@ -351,10 +355,12 @@ class Game extends React.Component {
             </div>
 
             <div className="game-info">
-              <div>X wins: {this.state.wins.X}</div>
-              <div>O wins: {this.state.wins.O}</div>
-              <div>{status}</div>
-              <ol>{this.logTurns()}</ol>
+              <div className="win-log">
+                <div>X wins: {this.state.wins.X}</div>
+                <div>O wins: {this.state.wins.O}</div>
+              </div>
+              <div className="status">{status}</div>
+              <ol className="turns-log">{this.logTurns()}</ol>
             </div>
           </>
         )}

@@ -2,7 +2,6 @@ import React from "react";
 import propTypes from "prop-types";
 
 class Square extends React.Component {
-  //* CSS classes to use for won sequences
   directions = [
     "strikethrough-horizontal",
     "strikethrough-vertical",
@@ -14,7 +13,10 @@ class Square extends React.Component {
     return (
       <button
         className={
-          "square " + (this.directions[this.props.crossDirection] || "")
+          "square " +
+          (this.directions[this.props.crossDirection] || "") +
+          " " +
+          (this.props.className || "")
         }
         onClick={() => this.props.onClick()}
       >
@@ -27,7 +29,8 @@ class Square extends React.Component {
 Square.propTypes = {
   value: propTypes.string,
   onClick: propTypes.func,
-  crossDirection: propTypes.number
+  crossDirection: propTypes.number,
+  className: propTypes.string
 };
 
 export default Square;

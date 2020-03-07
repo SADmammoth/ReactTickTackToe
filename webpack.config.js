@@ -33,8 +33,8 @@ module.exports = {
         use: ["style-loader", "css-loader", "sass-loader"]
       },
       {
-        test: /\.(otf|png|gif)$/,
-        use: ["file-loader"]
+        test: /\.(otf|png|gif|ttf)$/,
+        use: [{ loader: "file-loader", options: { esModule: false } }]
       }
     ]
   },

@@ -3,14 +3,27 @@ import propTypes, { string } from "prop-types";
 import Square from "./Square";
 
 class Board extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.corners = {};
+    this.corners[0] = "rounded-top-left";
+    this.corners[this.props.width - 1] = "rounded-top-right";
+    this.corners[this.props.width * (this.props.height - 1)] =
+      "rounded-bottom-left";
+    this.corners[this.props.width * this.props.height - 1] =
+      "rounded-bottom-right";
+  }
+
   renderSquare(i) {
     return (
       <Square
         value={this.props.squares[i]}
+        className={this.corners[i]}
         crossDirection={
           !this.props.gameEnd.result ||
           !this.props.gameEnd.wonIndexes.includes(i) ||
-          this.props.gameEnd.wonDirection
+          this.props.gameEnd.wonDirection /*number*/
         }
         onClick={
           this.props.gameEnd.result || this.props.squares[i]
@@ -36,6 +49,7 @@ class Board extends React.Component {
   render() {
     return (
       <div
+        className="board"
         style={{
           display: "grid",
           gridTemplateColumns: `repeat(${this.props.width},1fr)`,
