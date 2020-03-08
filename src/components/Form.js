@@ -131,14 +131,16 @@ class Form extends React.Component {
           action={this.props.action}
           className={"form " + this.props.className || ""}
           style={Object.assign({}, this.props.style)}
+          onSubmit={e => {
+            event.preventDefault();
+            if (event.target.checkValidity()) {
+              this.props.onSubmit(this.formatValues());
+            }
+          }}
         >
           {this.createInputs()}
           {React.cloneElement(this.props.submitButton, {
-            type: "submit",
-            onClick: event => {
-              event.preventDefault();
-              this.props.onSubmit(this.formatValues());
-            }
+            type: "submit"
           })}
         </form>
       </>

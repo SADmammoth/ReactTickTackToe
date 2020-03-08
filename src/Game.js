@@ -26,7 +26,7 @@ class Game extends React.Component {
     let history = JSON.parse(localStorage.getItem("history"));
 
     //*If history is empty then load only wins count
-    if (history == null || history.length == 1) {
+    if (history == null || history.length <= 1) {
       this.setState({
         wins: JSON.parse(localStorage.getItem("wins"))
       });
@@ -318,13 +318,15 @@ class Game extends React.Component {
                 description: "Width",
                 type: "number",
                 name: "width",
-                attributes: { min: 3, max: 10 }
+                attributes: { min: 3, max: 10 },
+                required: true
               },
               {
                 description: "Height",
                 type: "number",
                 name: "height",
-                attributes: { min: 3, max: 10 }
+                attributes: { min: 3, max: 10 },
+                required: true
               }
             ]}
             id={shortid.generate()}
