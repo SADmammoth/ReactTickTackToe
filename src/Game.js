@@ -1,7 +1,7 @@
-import React from "react";
-import Board from "./components/Board";
-import BoardCreator from "./components/BoardCreator";
-import shortid from "shortid";
+import React from 'react';
+import Board from './components/Board';
+import BoardCreator from './components/BoardCreator';
+import shortid from 'shortid';
 
 class Game extends React.Component {
   constructor(state) {
@@ -23,50 +23,50 @@ class Game extends React.Component {
   }
 
   componentDidMount() {
-    let history = JSON.parse(localStorage.getItem("history"));
+    let history = JSON.parse(localStorage.getItem('history'));
 
     //*If history is empty then load only wins count
     if (history == null || history.length <= 1) {
       this.setState({
-        wins: JSON.parse(localStorage.getItem("wins"))
+        wins: JSON.parse(localStorage.getItem('wins'))
       });
       return;
     }
 
     let size = JSON.parse(
       localStorage.getItem(
-        "size",
+        'size',
         JSON.stringify({ width: this.state.width, height: this.state.height })
       )
     );
-    let currentStep = JSON.parse(localStorage.getItem("currentStep"));
+    let currentStep = JSON.parse(localStorage.getItem('currentStep'));
 
     this.setState({
       history: history,
       currentStep: currentStep,
-      xIsCurrent: JSON.parse(localStorage.getItem("xIsCurrent")),
+      xIsCurrent: JSON.parse(localStorage.getItem('xIsCurrent')),
       width: size.width,
       height: size.height,
       gameEnd: this.checkWinner(history[currentStep], size.width, size.height),
-      wins: JSON.parse(localStorage.getItem("wins")),
+      wins: JSON.parse(localStorage.getItem('wins')),
       init: false
     });
   }
 
   componentDidUpdate() {
-    localStorage.setItem("wins", JSON.stringify(this.state.wins));
-    localStorage.setItem("history", JSON.stringify(this.state.history));
-    localStorage.setItem("currentStep", JSON.stringify(this.state.currentStep));
-    localStorage.setItem("xIsCurrent", JSON.stringify(this.state.xIsCurrent));
+    localStorage.setItem('wins', JSON.stringify(this.state.wins));
+    localStorage.setItem('history', JSON.stringify(this.state.history));
+    localStorage.setItem('currentStep', JSON.stringify(this.state.currentStep));
+    localStorage.setItem('xIsCurrent', JSON.stringify(this.state.xIsCurrent));
     localStorage.setItem(
-      "size",
+      'size',
       JSON.stringify({ width: this.state.width, height: this.state.height })
     );
   }
 
   checkWinner = (squares, width, height) => {
     let wonIndexes = [];
-    let wonDirection = "";
+    let wonDirection = '';
 
     //*Checks for won horizontal sequences
     function checkX(squares) {
@@ -178,7 +178,7 @@ class Game extends React.Component {
         checkY(squares) ||
         checkDiagPos(squares) ||
         checkDiagNeg(squares) ||
-        (checkDraw(squares) ? "Draw" : false),
+        (checkDraw(squares) ? 'Draw' : false),
       wonIndexes: wonIndexes,
       wonDirection: wonDirection
     };
@@ -194,7 +194,7 @@ class Game extends React.Component {
 
     let gameEnd = this.checkWinner(squares, width, height);
     let wins = Object.assign({}, this.state.wins);
-    if (gameEnd.result) wins[this.state.xIsCurrent ? "X" : "O"]++;
+    if (gameEnd.result) wins[this.state.xIsCurrent ? 'X' : 'O']++;
 
     this.setState({
       xIsCurrent: !this.state.xIsCurrent,
@@ -212,7 +212,7 @@ class Game extends React.Component {
     //*If current history step is before win, then is no win
     if (this.state.gameEnd.result && i < this.state.history.length - 1) {
       gameEnd.result = false;
-      wins[this.state.xIsCurrent ? "O" : "X"]--;
+      wins[this.state.xIsCurrent ? 'O' : 'X']--;
     } else {
       gameEnd = this.checkWinner(
         this.state.history[i],
@@ -220,7 +220,7 @@ class Game extends React.Component {
         this.state.height
       );
       if (gameEnd.result) {
-        wins[this.state.xIsCurrent ? "X" : "O"]++;
+        wins[this.state.xIsCurrent ? 'X' : 'O']++;
       }
     }
 
@@ -241,7 +241,7 @@ class Game extends React.Component {
     if (this.state.gameEnd.result && i < this.state.history.length - 1) {
       gameEnd.result = false;
       if (i != 0) {
-        wins[this.state.xIsCurrent ? "O" : "X"]--;
+        wins[this.state.xIsCurrent ? 'O' : 'X']--;
       }
     } else {
       gameEnd = this.checkWinner(
@@ -250,7 +250,7 @@ class Game extends React.Component {
         this.state.height
       );
       if (gameEnd.result) {
-        wins[this.state.xIsCurrent ? "X" : "O"]++;
+        wins[this.state.xIsCurrent ? 'X' : 'O']++;
       }
     }
 
@@ -270,8 +270,8 @@ class Game extends React.Component {
         <button
           className={
             this.state.currentStep === move
-              ? "button_history_current"
-              : "button_history"
+              ? 'button_history_current'
+              : 'button_history'
           }
           onClick={() => this.jumpTo(move)}
         >
@@ -287,11 +287,11 @@ class Game extends React.Component {
 
     let moves = this.state.history.map((step, move, arr) => {
       if (move == 0) {
-        return btn(0, "Go to start", "New game");
+        return btn(0, 'Go to start', 'New game');
       } else if (arr.length - 1 == move && this.state.gameEnd.result) {
-        return btn(move, "Game end");
+        return btn(move, 'Game end');
       } else {
-        return btn(move, "Go to move #" + move, "Reset");
+        return btn(move, 'Go to move #' + move, 'Reset');
       }
     });
 
@@ -299,13 +299,13 @@ class Game extends React.Component {
   }
 
   render() {
-    let status = "";
-    if (this.state.gameEnd.result == "Draw") {
-      status = "Draw";
+    let status = '';
+    if (this.state.gameEnd.result == 'Draw') {
+      status = 'Draw';
     } else if (this.state.gameEnd.result) {
-      status = (this.state.xIsCurrent ? "O" : "X") + " won";
+      status = (this.state.xIsCurrent ? 'O' : 'X') + ' won';
     } else {
-      status = "Current player: " + (this.state.xIsCurrent ? "X" : "O");
+      status = 'Current player: ' + (this.state.xIsCurrent ? 'X' : 'O');
     }
 
     return (
@@ -315,17 +315,17 @@ class Game extends React.Component {
           <BoardCreator
             inputs={[
               {
-                description: "Width",
-                type: "number",
-                name: "width",
-                attributes: { min: 3, max: 10 },
+                label: 'Width',
+                type: 'number',
+                name: 'width',
+                attributes: { min: 3, max: 10, value: 3 },
                 required: true
               },
               {
-                description: "Height",
-                type: "number",
-                name: "height",
-                attributes: { min: 3, max: 10 },
+                label: 'Height',
+                type: 'number',
+                name: 'height',
+                attributes: { min: 3, max: 10, value: 3 },
                 required: true
               }
             ]}
